@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Shriman Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+</head>
+<body class="admin">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">Shriman Admin</div>
+    <a href="dashboard.html" class="active">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="categories.html">Categories</a>
+    <a href="catalogue.html">Catalogue</a>
+    <a href="orders.html">Orders</a>
+    <a href="enquiries.html">Enquiries</a>
+        <a href="offers.html">Offers</a>
+    <a href="../index.html">View Store ↗</a>
+    <a href="#" class="logout" id="logoutLink">Log Out</a>
+  </aside>
+
+  <main class="admin-main">
+    <h1>Dashboard</h1>
+    <div class="stat-grid" id="statGrid"></div>
+
+    <div class="admin-panel">
+      <h2>Orders by Status</h2>
+      <canvas id="statusChart" height="220"></canvas>
+    </div>
+
+    <div class="admin-panel">
+      <h2>Recent Orders</h2>
+      <table class="admin-table" id="recentTable">
+        <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script>
+  if (!Store.isAdminLoggedIn()) location.href = "login.html";
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault();
+    Store.setAdminLoggedIn(false);
+    location.href = "login.html";
+  });
+
+  var products = Store.getProducts();
+  var orders = Store.getOrders();
+  var enquiries = Store.getEnquiries();
+
+  var totalSales = orders.reduce(function (s, o) { return s + (o.total || 0); }, 0);
+  var lowStock = products.filter(function (p) { return !p.external && p.stock > 0 && p.stock <= 5; }).length;
+  var outOfStock = products.filter(function (p) { return !p.external && p.stock <= 0; }).length;
+  var pendingEnquiries = enquiries.filter(function (e) { return e.status === "New"; }).length;
+
+  document.getElementById("statGrid").innerHTML = [
+    ["Total Sales", "₹" + totalSales.toLocaleString("en-IN")],
+    ["Total Orders", orders.length],
+    ["Total Products", products.length],
+    ["Low / Out of Stock", lowStock + outOfStock],
+    ["Pending Enquiries", pendingEnquiries]
+  ].map(function (s) {
+    return '<div class="stat-card"><div class="label">' + s[0] + '</div><div class="value">' + s[1] + '</div></div>';
+  }).join("");
+
+  var counts = {};
+  Store.ORDER_STEPS.forEach(function (s) { counts[s] = 0; });
+  orders.forEach(function (o) { counts[o.status] = (counts[o.status] || 0) + 1; });
+
+  var statusCtx = document.getElementById("statusChart").getContext("2d");
+var barGradient = statusCtx.createLinearGradient(0, 0, statusCtx.canvas.width, 0);
+barGradient.addColorStop(0, "#C08A52");
+barGradient.addColorStop(1, "#5C3D22");
+
+var valueLabelPlugin = {
+  id: "valueLabel",
+  afterDatasetsDraw: function (chart) {
+    var ctx = chart.ctx;
+    var meta = chart.getDatasetMeta(0);
+    ctx.save();
+    ctx.font = "600 12.5px Inter, sans-serif";
+    ctx.fillStyle = "#5C3D22";
+    ctx.textBaseline = "middle";
+    meta.data.forEach(function (bar, i) {
+      var val = chart.data.datasets[0].data[i];
+      ctx.textAlign = "left";
+      ctx.fillText(val, bar.x + 10, bar.y);
+    });
+    ctx.restore();
+  }
+};
+
+new Chart(statusCtx, {
+  type: "bar",
+  data: {
+    labels: Store.ORDER_STEPS,
+    datasets: [{
+      label: "Orders",
+      data: Store.ORDER_STEPS.map(function (s) { return counts[s]; }),
+      backgroundColor: barGradient,
+      borderRadius: 8,
+      borderSkipped: false,
+      maxBarThickness: 22
+    }]
+  },
+  options: {
+    indexAxis: "y",
+    layout: { padding: { right: 24 } },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: "#1A1815",
+        titleFont: { family: "Playfair Display", size: 13 },
+        bodyFont: { family: "Inter", size: 12 },
+        padding: 10,
+        cornerRadius: 6,
+        displayColors: false
+      }
+    },
+    scales: {
+      x: {
+        beginAtZero: true,
+        ticks: { precision: 0, font: { family: "Inter", size: 11 }, color: "#6b6459" },
+        grid: { color: "#E5DDCF", drawTicks: false },
+        border: { display: false }
+      },
+      y: {
+        ticks: { font: { family: "Inter", size: 12 }, color: "#1A1815" },
+        grid: { display: false },
+        border: { display: false }
+      }
+    },
+    animation: { duration: 700, easing: "easeOutQuart" }
+  },
+  plugins: [valueLabelPlugin]
+});
+
+  var tbody = document.querySelector("#recentTable tbody");
+  tbody.innerHTML = orders.slice(0, 8).map(function (o) {
+    return '<tr><td>' + o.id + '</td><td>' + o.address.name + '</td><td>₹' + o.total.toLocaleString("en-IN") + '</td><td><span class="pill-badge">' + o.status + '</span></td></tr>';
+  }).join("") || '<tr><td colspan="4" style="color:var(--muted);">No orders yet.</td></tr>';
+</script>
+</body>
+</html>

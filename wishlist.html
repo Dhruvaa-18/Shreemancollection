@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wishlist — Shriman Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">FREE SHIPPING on all Prepaid Orders&nbsp;&nbsp;|&nbsp;&nbsp;COD Available</div>
+
+<header class="header">
+  <a href="index.html" class="header__logo">SHRIMAN COLLECTION</a>
+  <nav class="header__nav" aria-label="Primary">
+    <a href="index.html">Home</a>
+    <div class="has-dropdown">
+      <a href="shop.html">Collections ▾</a>
+      <div class="dropdown" id="navDropdown"></div>
+    </div>
+    <a href="shop.html">Shop</a>
+    <a href="offers.html">Offers</a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <div class="header__icons">
+  <a href="account.html" class="icon-link" id="accountLink" aria-label="Account" style="font-size:0.85rem;">👤 Login</a>
+  <a href="wishlist.html" class="icon-link" aria-label="Wishlist">♡<span class="icon-badge" id="wishBadge">0</span></a>
+  <a href="cart.html" class="icon-link" aria-label="Cart">🛒<span class="icon-badge" id="cartBadge">0</span></a>
+</div>
+</header>
+
+<main class="section">
+  <div class="section__head"><h2>Your Wishlist</h2></div>
+  <div class="product-grid" id="wishGrid"></div>
+  <div class="empty-state" id="wishEmpty" style="display:none;">Nothing saved yet. <a href="shop.html">Browse the shop</a></div>
+</main>
+
+<footer class="footer">
+  <div class="footer__grid">
+    <div>
+      <div class="footer__brand">Shriman Collection</div>
+      <p style="font-size:0.85rem;opacity:0.75;max-width:32ch;">Premium menswear, tailored basics, and made-to-measure occasionwear — all in one wardrobe.</p>
+    </div>
+    <div><h4>Shop</h4><a href="shop.html">All Products</a><a href="offers.html">Offers</a><a href="tuxedos/index.html">Tuxedos</a></div>
+    <div><h4>Company</h4><a href="about.html">About Us</a><a href="contact.html">Contact</a><a href="admin/login.html">Admin</a></div>
+    <div><h4>Account</h4><a href="cart.html">Cart</a><a href="wishlist.html">Wishlist</a><a href="orders.html">My Orders</a></div>
+  </div>
+  <div class="footer__bottom">
+    <span>© 2023 Shriman Collection</span>
+    <span>Made with care in India</span>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/site.js"></script>
+<script>
+  var navDropdown = document.getElementById("navDropdown");
+navDropdown.innerHTML = '<div class="dropdown-inner">' + Store.getCategories().map(function (c) {
+  var href = c === "Tuxedos" ? "tuxedos/index.html" : "shop.html?category=" + encodeURIComponent(c);
+  return '<a href="' + href + '">' + c + '</a>';
+}).join("") + '</div>';
+
+  function render() {
+    var ids = Store.getWishlist();
+    var grid = document.getElementById("wishGrid");
+    var empty = document.getElementById("wishEmpty");
+    if (!ids.length) {
+      grid.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+    empty.style.display = "none";
+    var products = ids.map(function (id) { return Store.getProduct(id); }).filter(Boolean);
+    grid.innerHTML = products.map(productCardHTML).join("");
+    wireProductGrid(grid);
+    grid.addEventListener("click", function (e) {
+      if (e.target.closest("[data-wish]")) setTimeout(render, 0);
+    });
+  }
+  render();
+</script>
+</body>
+</html>

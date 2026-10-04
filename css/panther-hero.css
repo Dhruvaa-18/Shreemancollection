@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap');
+
+.panther-hero{
+  --bg-deep: #08070b;
+  --bg-surface: #100f16;
+  --gold-primary: #e5b887;
+  --gold-light: #f5d4af;
+  --gold-dark: #b8864d;
+  --pink-accent: #ff6584;
+  --pink-subtle: rgba(255, 101, 132, 0.15);
+  --text-main: #f0edf6;
+  --text-muted: #9590a5;
+  --text-dim: #605c70;
+  --glass-bg: rgba(18, 16, 26, 0.72);
+  --glass-border: rgba(229, 184, 135, 0.18);
+  --glass-glow: rgba(229, 184, 135, 0.08);
+  --font-serif: 'Cinzel', 'Playfair Display', Georgia, serif;
+  --font-editorial: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+
+  position: relative;
+  height: 600vh;
+  background-color: var(--bg-deep);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.panther-hero *, .panther-hero *::before, .panther-hero *::after{
+  box-sizing: border-box;
+}
+
+.panther-sticky{
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 1;
+}
+
+.panther-hero #cursor-dot, .panther-hero #cursor-ring {
+  position: absolute;
+  pointer-events: none;
+  z-index: 10000;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity 0.3s ease;
+}
+.panther-hero #cursor-dot { width: 6px; height: 6px; background: var(--gold-light); box-shadow: 0 0 10px var(--gold-primary); }
+.panther-hero #cursor-ring { width: 32px; height: 32px; border: 1px solid var(--gold-primary); opacity: 0.5; }
+
+.panther-hero #preloader{
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-deep);
+}
+.panther-hero .preloader-content{ text-align: center; padding: 24px; }
+.panther-hero .preloader-monogram{
+  width: 60px; height: 60px; margin: 0 auto 18px;
+  border: 1px solid var(--gold-primary); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-serif); font-size: 26px; color: var(--gold-primary);
+}
+.panther-hero .preloader-title{ font-family: var(--font-serif); letter-spacing: 0.25em; font-size: 1.1rem; margin-bottom: 6px; }
+.panther-hero .preloader-sub{ color: var(--gold-primary); font-size: 0.8rem; letter-spacing: 0.1em; margin-bottom: 26px; }
+.panther-hero .preloader-progress-track{ width: 260px; height: 2px; background: rgba(255,255,255,0.1); margin: 0 auto; border-radius: 2px; overflow: hidden; }
+.panther-hero .preloader-progress-fill{ height: 100%; width: 0%; background: var(--gold-primary); transition: width 0.2s ease; }
+.panther-hero .preloader-percentage{ margin-top: 12px; font-size: 0.85rem; color: var(--text-muted); }
+.panther-hero .preloader-status{ margin-top: 6px; font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.05em; }
+
+.panther-hero #canvas-stage {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #08070b;
+}
+.panther-hero #animation-canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+.panther-hero .cinematic-vignette{ position:absolute; inset:0; pointer-events:none; background: radial-gradient(circle at 50% 50%, transparent 45%, rgba(8,7,11,0.75) 100%); }
+.panther-hero .ambient-glow{ position:absolute; top:50%; left:50%; transform: translate(-50%,-50%); width:70vw; height:70vh; background: radial-gradient(circle, rgba(229,184,135,0.04) 0%, rgba(255,101,132,0.02) 40%, transparent 70%); pointer-events:none; filter: blur(40px); }
+
+.panther-hero .brand-header{
+  position: absolute; top: 28px; left: 36px; z-index: 50;
+  display: flex; align-items: center; gap: 16px;
+}
+.panther-hero .brand-monogram{
+  width: 38px; height: 38px; border: 1px solid var(--gold-primary); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-serif); font-size: 16px; font-weight: 700; color: var(--gold-primary);
+  background: rgba(16,15,22,0.7); backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.panther-hero .brand-title{ display: flex; flex-direction: column; }
+.panther-hero .brand-name{ font-family: var(--font-serif); font-size: 14px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-main); }
+.panther-hero .brand-sub{ font-size: 11px; letter-spacing: 0.12em; color: var(--gold-primary); opacity: 0.85; text-transform: uppercase; }
+
+.panther-hero .ui-overlay{
+  position: absolute; inset: 0; z-index: 40;
+  display: flex; flex-direction: column; justify-content: space-between;
+  padding: 88px 36px 28px 36px;
+  pointer-events: none;
+}
+
+.panther-hero .chapter-nav{ position:absolute; top:28px; left:50%; transform: translateX(-50%); display:flex; gap:8px; background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: 999px; padding: 6px; backdrop-filter: blur(14px); }
+.panther-hero .chapter-btn{ background:none; border:none; color: var(--text-muted); font-size: 0.72rem; letter-spacing: 0.08em; padding: 8px 16px; border-radius: 999px; cursor: pointer; display:flex; align-items:center; gap:6px; transition: 0.3s var(--ease-luxury); }
+.panther-hero .chapter-btn.active{ background: rgba(229,184,135,0.14); color: var(--gold-light); }
+.panther-hero .chapter-num{ font-family: var(--font-serif); font-size: 0.7rem; }
+
+
+
+.panther-hero .narrative-stage{ position: relative; flex: 1; display:flex; align-items:center; }
+.panther-hero .editorial-card{ position:absolute; max-width: 380px; padding: 28px; background: var(--glass-bg); border:1px solid var(--glass-border); border-radius: 18px; backdrop-filter: blur(16px); opacity:0; transform: translateY(24px); transition: 0.6s var(--ease-luxury); pointer-events: none; }
+.panther-hero .editorial-card.active{ opacity: 1; transform: translateY(0); }
+.panther-hero .card-left{ left: 36px; }
+.panther-hero .card-right{ right: 36px; }
+.panther-hero .card-tag{ display:flex; align-items:center; gap:10px; font-size:0.7rem; letter-spacing:0.15em; color: var(--gold-primary); text-transform: uppercase; margin-bottom: 14px; }
+.panther-hero .tag-line{ width: 24px; height:1px; background: var(--gold-primary); display:inline-block; }
+.panther-hero .card-title{ font-family: var(--font-editorial); font-size: 1.7rem; margin-bottom: 12px; color: var(--text-main); }
+.panther-hero .card-title span{ color: var(--gold-light); font-style: italic; }
+.panther-hero .card-desc{ font-size: 0.88rem; line-height: 1.6; color: var(--text-muted); margin-bottom: 18px; }
+.panther-hero .card-stats{ display:flex; gap: 24px; }
+.panther-hero .stat-val{ display:block; font-family: var(--font-serif); font-size: 1rem; color: var(--gold-light); }
+.panther-hero .stat-lbl{ display:block; font-size: 0.68rem; color: var(--text-dim); letter-spacing: 0.05em; margin-top: 2px; }
+
+.panther-hero .atelier-footer{ display:flex; flex-direction: column; gap: 14px; }
+.panther-hero .timeline-info{ display:flex; justify-content: space-between; align-items:center; font-size: 0.72rem; letter-spacing: 0.1em; color: var(--text-dim); }
+.panther-hero .timeline-chapter{ color: var(--gold-primary); }
+.panther-hero .timeline-hint{ display:flex; align-items:center; gap: 6px; }
+.panther-hero .scroll-arrow-anim{ animation: pantherArrowBounce 1.5s ease-in-out infinite; }
+@keyframes pantherArrowBounce{ 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(4px); } }
+
+.panther-hero .scrubber-container{ pointer-events: auto; cursor: pointer; padding: 10px 0; }
+.panther-hero .scrubber-track{ position: relative; height: 3px; background: rgba(255,255,255,0.12); border-radius: 3px; }
+.panther-hero .scrubber-fill{ position:absolute; top:0; left:0; height:100%; width:0%; background: var(--gold-primary); border-radius: 3px; }
+.panther-hero .scrubber-thumb{ position:absolute; top:50%; left:0%; width:12px; height:12px; border-radius:50%; background: var(--gold-light); transform: translate(-50%,-50%); box-shadow: 0 0 10px var(--gold-primary); }
+
+@media (max-width: 767px){
+  .panther-hero .ui-overlay{ padding: 16px 16px 14px; }
+
+  /* card ko neeche le jao */
+  .panther-hero .narrative-stage{ align-items: flex-end; }
+
+  .panther-hero .editorial-card,
+  .panther-hero .card-left,
+  .panther-hero .card-right{
+    left: 0; right: 0; bottom: 0;
+    max-width: none;
+    width: 100%;
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(20, 14, 12, 0.55);
+  }
+
+  /* card chhota rakho taaki panther dikhe */
+  .panther-hero .card-title{ font-size: 1.15rem; margin-bottom: 6px; }
+  .panther-hero .card-desc{
+    font-size: 0.78rem; line-height: 1.45; margin-bottom: 10px;
+    display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .panther-hero .card-stats{ gap: 18px; }
+  .panther-hero .stat-val{ font-size: 0.9rem; }
+  .panther-hero .stat-lbl{ font-size: 0.6rem; }
+
+  /* timeline card ke neeche thoda compact */
+  .panther-hero .atelier-footer{ gap: 8px; }
+  .panther-hero .timeline-info{ font-size: 0.62rem; }
+}

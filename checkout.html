@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — Shriman Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="topbar">FREE SHIPPING on all Prepaid Orders&nbsp;&nbsp;|&nbsp;&nbsp;COD Available</div>
+
+<header class="header">
+  <a href="index.html" class="header__logo">SHRIMAN COLLECTION</a>
+  <nav class="header__nav" aria-label="Primary">
+    <a href="index.html">Home</a>
+    <a href="shop.html">Shop</a>
+    <a href="cart.html">Cart</a>
+  </nav>
+  <div class="header__icons">
+  <a href="account.html" class="icon-link" id="accountLink" aria-label="Account" style="font-size:0.85rem;">👤 Login</a>
+  <a href="wishlist.html" class="icon-link" aria-label="Wishlist">♡<span class="icon-badge" id="wishBadge">0</span></a>
+  <a href="cart.html" class="icon-link" aria-label="Cart">🛒<span class="icon-badge" id="cartBadge">0</span></a>
+</div>
+</header>
+
+<main class="section" style="max-width:820px;margin:0 auto;">
+  <div class="steps">
+    <span id="step1" class="active">1. Address</span>
+    <span id="step2">2. Order Summary</span>
+    <span id="step3">3. Payment</span>
+  </div>
+
+  <div id="checkoutRoot"></div>
+</main>
+
+<footer class="footer">
+  <div class="footer__bottom" style="max-width:1240px;margin:0 auto;">
+    <span>© 2023 Shriman Collection</span>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/site.js"></script>
+<script>
+    var cart = Store.getCart();
+  var root = document.getElementById("checkoutRoot");
+
+  // Safety net: clamp any previously-saved quantities that exceed current stock
+  cart.forEach(function (item, i) {
+    var p = Store.getProduct(item.productId);
+    if (p && !p.external && item.qty > p.stock) {
+      Store.updateCartQty(i, p.stock);
+    }
+  });
+  cart = Store.getCart();
+  updateHeaderBadges();
+
+  if (!cart.length) {
+    root.innerHTML = '<div class="empty-state">Your cart is empty. <a href="shop.html">Continue shopping</a></div>';
+  } else {
+    var address = {};
+    var payment = "COD";
+    var stage = 1;
+
+    function setStage(n) {
+      stage = n;
+      ["step1","step2","step3"].forEach(function (id, i) {
+        document.getElementById(id).classList.toggle("active", i === n - 1);
+      });
+      renderStage();
+    }
+
+    function totals() {
+      var subtotal = 0;
+      cart.forEach(function (item) {
+        var p = Store.getProduct(item.productId);
+        if (p && p.price) subtotal += p.price * item.qty;
+      });
+      var shipping = subtotal >= FREE_SHIPPING_THRESHOLD ? 0 : 79;
+      return { subtotal: subtotal, shipping: shipping, total: subtotal + shipping };
+    }
+
+    function renderStage() {
+      if (stage === 1) {
+        root.innerHTML =
+          '<h3 style="margin-bottom:18px;">Delivery Address</h3>' +
+          '<form id="addrForm" class="form-grid">' +
+            '<div class="field"><label>Full Name</label><input required id="fName"></div>' +
+            '<div class="field"><label>Mobile Number</label><input required id="fPhone" pattern="[0-9]{10}" maxlength="10"></div>' +
+            '<div class="field full"><label>House / Flat, Street, Area</label><input required id="fAddr"></div>' +
+            '<div class="field"><label>City</label><input required id="fCity"></div>' +
+            '<div class="field"><label>State</label><input required id="fState"></div>' +
+            '<div class="field"><label>Pincode</label><input required id="fPin" pattern="[0-9]{6}" maxlength="6"></div>' +
+          '</form>' +
+          '<button class="btn btn--dark" id="toStep2" style="margin-top:20px;">Continue to Summary</button>';
+
+        document.getElementById("toStep2").addEventListener("click", function () {
+          var form = document.getElementById("addrForm");
+          if (!form.reportValidity()) return;
+          address = {
+            name: document.getElementById("fName").value,
+            phone: document.getElementById("fPhone").value,
+            line: document.getElementById("fAddr").value,
+            city: document.getElementById("fCity").value,
+            state: document.getElementById("fState").value,
+            pin: document.getElementById("fPin").value
+          };
+          setStage(2);
+        });
+      }
+
+      if (stage === 2) {
+        var t = totals();
+        var rows = cart.map(function (item) {
+          var p = Store.getProduct(item.productId);
+          if (!p) return "";
+          return '<div class="summary-row"><span>' + p.name + ' × ' + item.qty + ' (' + item.size + ', ' + item.color + ')</span><span>' + (p.price ? fmtPrice(p.price * item.qty) : "—") + '</span></div>';
+        }).join("");
+
+        root.innerHTML =
+          '<h3 style="margin-bottom:18px;">Order Summary</h3>' +
+          '<div class="summary-box" style="margin-bottom:20px;">' + rows +
+            '<div class="summary-row"><span>Shipping</span><span>' + (t.shipping === 0 ? "Free" : fmtPrice(t.shipping)) + '</span></div>' +
+            '<div class="summary-row total"><span>Total</span><span>' + fmtPrice(t.total) + '</span></div>' +
+          '</div>' +
+          '<div class="summary-box" style="margin-bottom:20px;">' +
+            '<h3>Deliver to</h3>' +
+            '<p style="font-size:0.9rem;color:var(--muted);">' + address.name + ', ' + address.phone + '<br>' + address.line + ', ' + address.city + ', ' + address.state + ' – ' + address.pin + '</p>' +
+          '</div>' +
+          '<button class="btn btn--outline" id="backTo1">Back</button> ' +
+          '<button class="btn btn--dark" id="toStep3">Continue to Payment</button>';
+
+        document.getElementById("backTo1").addEventListener("click", function () { setStage(1); });
+        document.getElementById("toStep3").addEventListener("click", function () { setStage(3); });
+      }
+
+      if (stage === 3) {
+        root.innerHTML =
+          root.innerHTML =
+  '<h3 style="margin-bottom:18px;">Payment Method</h3>' +
+  '<div class="payment-options">' +
+    '<label><input type="radio" name="pay" value="COD" checked> Cash on Delivery</label>' +
+  '</div>' +
+  '<p style="font-size:0.78rem;color:var(--muted);margin:14px 0 20px;">Pay in cash when your order is delivered.</p>' +
+  '<button class="btn btn--outline" id="backTo2">Back</button> ' +
+  '<button class="btn btn--dark" id="placeOrder">Place Order</button>';
+
+        document.getElementById("backTo2").addEventListener("click", function () { setStage(2); });
+        document.getElementById("placeOrder").addEventListener("click", function () {
+             if (!Store.isCustomerLoggedIn()) {
+     showToast("Please log in to place your order.");
+     setTimeout(function () { location.href = "account.html"; }, 900);
+     return;
+   }
+          payment = document.querySelector('input[name="pay"]:checked').value;
+          if (payment !== "COD") {
+            showToast("Only Cash on Delivery is wired up in this demo.");
+            return;
+          }
+          var t = totals();
+          var order = Store.placeOrder({
+            items: cart,
+            address: address,
+            payment: payment,
+            total: t.total
+          });
+          Store.clearCart();
+          updateHeaderBadges();
+          location.href = "orders.html?justPlaced=" + order.id;
+        });
+      }
+    }
+
+    renderStage();
+  }
+</script>
+</body>
+</html>

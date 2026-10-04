@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offers — Admin — Shriman Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">Shriman Admin</div>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="categories.html">Categories</a>
+    <a href="catalogue.html">Catalogue</a>
+    <a href="orders.html">Orders</a>
+    <a href="enquiries.html">Enquiries</a>
+    <a href="offers.html" class="active">Offers</a>
+    <a href="../index.html">View Store ↗</a>
+    <a href="#" class="logout" id="logoutLink">Log Out</a>
+  </aside>
+
+  <main class="admin-main">
+    <h1>Offers</h1>
+
+    <div class="admin-panel">
+      <h2 id="formTitle">Add Offer</h2>
+      <form id="offerForm">
+        <div class="admin-form-grid">
+          <div class="full"><label>Title</label><input required id="oTitle" placeholder="e.g. Festive Bundle"></div>
+          <div class="full"><label>Description</label><textarea required id="oDescription" rows="2" style="width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:7px;font-family:var(--sans);resize:vertical;" placeholder="Buy 2 get 10% off, buy 3 get 20% off..."></textarea></div>
+          <div><label>Coupon Code (optional)</label><input id="oCode" placeholder="e.g. FEST20"></div>
+          <div><label>Discount % (required if code set)</label><input type="number" id="oDiscount" min="0" max="100" placeholder="e.g. 20"></div>
+        </div>
+        <button type="submit" class="btn btn--dark">Add Offer</button>
+      </form>
+    </div>
+
+    <div class="admin-panel">
+      <h2>Current Offers</h2>
+      <table class="admin-table">
+        <thead><tr><th>Title</th><th>Description</th><th>Coupon Code</th><th>Discount</th><th></th></tr></thead>
+        <tbody id="offerTable"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script>
+  if (!Store.isAdminLoggedIn()) location.href = "login.html";
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault(); Store.setAdminLoggedIn(false); location.href = "login.html";
+  });
+
+  function renderTable() {
+    var offers = Store.getOffers();
+    document.getElementById("offerTable").innerHTML = offers.length
+      ? offers.map(function (o) {
+          return (
+            '<tr>' +
+              '<td>' + o.title + '</td>' +
+              '<td style="max-width:340px;">' + o.description + '</td>' +
+              '<td>' + (o.code || "—") + '</td>' +
+              '<td>' + (o.discount ? Math.round(o.discount * 100) + "%" : "—") + '</td>' +
+              '<td><button class="icon-btn" data-del="' + o.id + '">🗑️</button></td>' +
+            '</tr>'
+          );
+        }).join("")
+      : '<tr><td colspan="5" style="color:var(--muted);">No offers yet.</td></tr>';
+
+    document.querySelectorAll("[data-del]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (!confirm("Delete this offer? It will disappear from the Offers page immediately.")) return;
+        Store.deleteOffer(b.dataset.del);
+        renderTable();
+      });
+    });
+  }
+  renderTable();
+
+  document.getElementById("offerForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var code = document.getElementById("oCode").value.trim();
+    var discountVal = document.getElementById("oDiscount").value;
+    if (code && !discountVal) {
+      alert("Please set a discount % for this coupon code.");
+      return;
+    }
+    Store.addOffer({
+      title: document.getElementById("oTitle").value.trim(),
+      description: document.getElementById("oDescription").value.trim(),
+      code: code || null,
+      discount: code ? Number(discountVal) / 100 : null
+    });
+    e.target.reset();
+    renderTable();
+  });
+</script>
+</body>
+</html>

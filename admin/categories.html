@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categories — Admin — Shriman Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">Shriman Admin</div>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="categories.html" class="active">Categories</a>
+    <a href="catalogue.html">Catalogue</a>
+    <a href="orders.html">Orders</a>
+    <a href="enquiries.html">Enquiries</a>
+        <a href="offers.html">Offers</a>
+    <a href="../index.html">View Store ↗</a>
+    <a href="#" class="logout" id="logoutLink">Log Out</a>
+  </aside>
+
+  <main class="admin-main">
+    <h1>Categories</h1>
+
+    <div class="admin-panel">
+      <h2>Add Category</h2>
+      <form id="catForm">
+  <div class="admin-form-grid">
+    <div><label>Category Name</label><input id="catName" placeholder="e.g. Underwear" required></div>
+    <div><label>Image Link (URL, optional)</label><input id="catImageUrl" placeholder="https://example.com/photo.jpg"></div>
+    <div class="full"><label>Or Upload Photo</label><input type="file" id="catImageFile" accept="image/*"></div>
+    <div class="full" id="catImgPreviewWrap" style="display:none;">
+      <img id="catImgPreview" src="" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:1px solid var(--line);">
+      <button type="button" id="catImgRemove" class="btn btn--outline" style="margin-left:12px;padding:6px 14px;">Remove</button>
+    </div>
+  </div>
+    <button type="submit" class="btn btn--dark" style="margin-top:16px;">Add Category</button>
+</form>
+      <p id="catErr" style="color:var(--sale);font-size:0.82rem;margin-top:10px;"></p>
+    </div>
+    <div class="admin-panel">
+
+      <h2>All Categories</h2>
+      <table class="admin-table">
+        <thead><tr><th>Photo</th><th>Name</th><th># Products</th><th></th></tr></thead>
+        <tbody id="catTable"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/site.js"></script>
+<script>
+  if (!Store.isAdminLoggedIn()) location.href = "login.html";
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault(); Store.setAdminLoggedIn(false); location.href = "login.html";
+  });
+
+  var tableBody = document.getElementById("catTable");
+
+  var catImgData = "";
+  var catImageUrl = document.getElementById("catImageUrl");
+  var catImageFile = document.getElementById("catImageFile");
+  var catImgPreviewWrap = document.getElementById("catImgPreviewWrap");
+  var catImgPreview = document.getElementById("catImgPreview");
+
+  function setCatImage(src) {
+    catImgData = src || "";
+    if (catImgData) {
+      catImgPreview.src = catImgData;
+      catImgPreviewWrap.style.display = "block";
+    } else {
+      catImgPreview.src = "";
+      catImgPreviewWrap.style.display = "none";
+    }
+  }
+
+  catImageUrl.addEventListener("input", function () {
+    catImageFile.value = "";
+    setCatImage(catImageUrl.value.trim());
+  });
+
+     // ---- Cloudinary upload helper ----
+  var CLOUDINARY_CLOUD_NAME = "dxq8nbpg";
+  var CLOUDINARY_PRESET = "shreeman";
+
+  function uploadToCloudinary(file, done) {
+    if (!/^image\//.test(file.type)) { done("Sirf photo (JPG / PNG / WebP) chuno."); return; }
+    if (file.size > 8 * 1024 * 1024) { done("Photo 8 MB se badi hai. Chhoti photo chuno."); return; }
+    var form = new FormData();
+    form.append("file", file);
+    form.append("upload_preset", CLOUDINARY_PRESET);
+    fetch("https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/image/upload", { method: "POST", body: form })
+      .then(function (res) { return res.json().then(function (j) { return { ok: res.ok, body: j }; }); })
+      .then(function (r) {
+        if (!r.ok || !r.body.secure_url) throw new Error((r.body && r.body.error && r.body.error.message) || "Upload failed");
+        done(null, r.body.secure_url.replace("/upload/", "/upload/f_auto,q_auto,w_500/"));
+      })
+      .catch(function (err) { done("Upload nahi hui: " + err.message); });
+  }
+
+  var catUploadStatus = document.createElement("small");
+  catUploadStatus.style.cssText = "display:block;margin-top:6px;color:var(--muted);";
+  catImageFile.parentNode.appendChild(catUploadStatus);
+
+  catImageFile.addEventListener("change", function () {
+    var file = catImageFile.files[0];
+    if (!file) return;
+    catUploadStatus.textContent = "Upload ho rahi hai…";
+    uploadToCloudinary(file, function (err, url) {
+      catImageFile.value = "";
+      if (err) { catUploadStatus.textContent = err; return; }
+      catImageUrl.value = url;
+      setCatImage(url);
+      catUploadStatus.textContent = "Photo upload ho gayi ✓";
+    });
+  });
+
+  document.getElementById("catImgRemove").addEventListener("click", function () {
+    catImageUrl.value = "";
+    catImageFile.value = "";
+    setCatImage("");
+  });
+
+  function productCountFor(cat) {
+    return Store.getProducts().filter(function (p) { return p.category === cat; }).length;
+  }
+
+  function renderTable() {
+    var cats = Store.getCategories();
+    tableBody.innerHTML = cats.map(function (c) {
+      var count = productCountFor(c);
+      var img = Store.getCategoryImage(c);
+      var thumb = img
+        ? '<img src="' + img + '" style="width:44px;height:44px;border-radius:50%;object-fit:cover;">'
+        : '<span style="font-size:1.4rem;">' + (CATEGORY_ICONS[c] || "🛍️") + '</span>';
+      return (
+        '<tr>' +
+          '<td>' + thumb + '<br><label style="font-size:0.72rem;color:var(--accent);cursor:pointer;">Change<input type="file" accept="image/*" data-catimg="' + c + '" style="display:none;"></label></td>' +
+          '<td>' + c + '</td>' +
+          '<td>' + count + '</td>' +
+          '<td><button class="btn btn--outline" data-del="' + c + '"' + (count > 0 ? ' disabled title="Products still use this category"' : '') + '>Delete</button></td>' +
+        '</tr>'
+      );
+    }).join("");
+
+          document.querySelectorAll("[data-catimg]").forEach(function (input) {
+      input.addEventListener("change", function () {
+        var file = input.files[0];
+        if (!file) return;
+        uploadToCloudinary(file, function (err, url) {
+          if (err) { alert(err); return; }
+          Store.setCategoryImage(input.dataset.catimg, url);
+          renderTable();
+        });
+      });
+    });
+
+    function resizeImage(file, maxDim, quality, callback) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        var img = new Image();
+        img.onload = function () {
+          var w = img.width, h = img.height;
+          if (w > h && w > maxDim) { h = Math.round(h * maxDim / w); w = maxDim; }
+          else if (h > maxDim) { w = Math.round(w * maxDim / h); h = maxDim; }
+          var canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          callback(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    document.querySelectorAll("[data-del]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        if (btn.disabled) return;
+        if (!confirm('Delete category "' + btn.dataset.del + '"?')) return;
+        var res = Store.deleteCategory(btn.dataset.del);
+        if (!res.ok) { alert(res.error); return; }
+        renderTable();
+      });
+    });
+  }
+
+  document.getElementById("catForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = document.getElementById("catName").value.trim();
+    var res = Store.addCategory(name);
+    document.getElementById("catErr").textContent = res.ok ? "" : res.error;
+    if (res.ok) {
+      if (catImgData) Store.setCategoryImage(name, catImgData);
+      document.getElementById("catForm").reset();
+      setCatImage("");
+      renderTable();
+    }
+  });
+
+  renderTable();
+</script>
+</body>
+</html>

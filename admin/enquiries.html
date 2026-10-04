@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Enquiries — Admin — Shriman Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">Shriman Admin</div>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="categories.html">Categories</a>
+    <a href="catalogue.html">Catalogue</a>
+    <a href="orders.html">Orders</a>
+    <a href="enquiries.html" class="active">Enquiries</a>
+        <a href="offers.html">Offers</a>
+    <a href="../index.html">View Store ↗</a>
+    <a href="#" class="logout" id="logoutLink">Log Out</a>
+  </aside>
+
+  <main class="admin-main">
+    <h1>Enquiries</h1>
+    <div class="admin-panel">
+      <table class="admin-table">
+        <thead><tr><th>Name</th><th>Contact</th><th>Message</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody id="eqTable"></tbody>
+      </table>
+    </div>
+
+    <div class="admin-panel">
+      <h2>Reviews Awaiting Approval</h2>
+      <table class="admin-table">
+        <thead><tr><th>Product</th><th>Reviewer</th><th>Rating</th><th>Text</th><th></th></tr></thead>
+        <tbody id="reviewTable"></tbody>
+      </table>
+
+    </div>
+        <div class="admin-panel">
+      <h2>Published Reviews</h2>
+      <table class="admin-table">
+        <thead><tr><th>Product</th><th>Reviewer</th><th>Rating</th><th>Text</th><th></th></tr></thead>
+        <tbody id="publishedReviewTable"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script>
+  if (!Store.isAdminLoggedIn()) location.href = "login.html";
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault(); Store.setAdminLoggedIn(false); location.href = "login.html";
+  });
+
+  function renderEnquiries() {
+    var list = Store.getEnquiries();
+    document.getElementById("eqTable").innerHTML = list.map(function (e) {
+      var options = ["New", "Contacted", "Resolved"].map(function (s) {
+        return '<option value="' + s + '"' + (s === e.status ? " selected" : "") + '>' + s + '</option>';
+      }).join("");
+      return (
+        '<tr>' +
+          '<td>' + e.name + '</td>' +
+          '<td>' + e.phone + (e.email ? '<br><span style="color:var(--muted);font-size:0.78rem;">' + e.email + '</span>' : "") + '</td>' +
+          '<td style="max-width:260px;">' + (e.subject ? '<strong>' + e.subject + '</strong><br>' : "") + e.message + '</td>' +
+          '<td>' + new Date(e.date).toLocaleDateString("en-IN") + '</td>' +
+          '<td><select data-eq="' + e.id + '">' + options + '</select></td>' +
+        '</tr>'
+      );
+    }).join("") || '<tr><td colspan="5" style="color:var(--muted);">No enquiries yet.</td></tr>';
+
+    document.querySelectorAll("[data-eq]").forEach(function (sel) {
+      sel.addEventListener("change", function () { Store.updateEnquiryStatus(sel.dataset.eq, sel.value); });
+    });
+  }
+
+  function renderReviews() {
+    var all = Store.getAllReviews();
+    var rows = [];
+    Object.keys(all).forEach(function (productId) {
+      var p = Store.getProduct(productId);
+      all[productId].forEach(function (r, idx) {
+        if (r.approved) return;
+        rows.push(
+          '<tr>' +
+            '<td>' + (p ? p.name : productId) + '</td>' +
+            '<td>' + r.name + '</td>' +
+            '<td>' + "★".repeat(r.rating) + '</td>' +
+            '<td style="max-width:260px;">' + r.text + '</td>' +
+            '<td><button class="icon-btn" data-approve="' + productId + '|' + idx + '">✅</button><button class="icon-btn" data-reject="' + productId + '|' + idx + '">🗑️</button></td>' +
+          '</tr>'
+        );
+      });
+    });
+    document.getElementById("reviewTable").innerHTML = rows.join("") || '<tr><td colspan="5" style="color:var(--muted);">Nothing pending.</td></tr>';
+
+    document.querySelectorAll("[data-approve]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var parts = b.dataset.approve.split("|");
+        Store.setReviewApproval(parts[0], Number(parts[1]), true);
+        renderReviews();
+      });
+    });
+    document.querySelectorAll("[data-reject]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        var parts = b.dataset.reject.split("|");
+        Store.deleteReview(parts[0], Number(parts[1]));
+        renderReviews();
+      });
+    });
+  }
+
+  function renderPublishedReviews() {
+  var all = Store.getAllReviews();
+  var rows = [];
+  Object.keys(all).forEach(function (productId) {
+    var p = Store.getProduct(productId);
+    all[productId].forEach(function (r, idx) {
+      if (!r.approved) return;
+      rows.push(
+        '<tr>' +
+          '<td>' + (p ? p.name : productId) + '</td>' +
+          '<td>' + r.name + '</td>' +
+          '<td>' + "★".repeat(r.rating) + '</td>' +
+          '<td style="max-width:260px;">' + r.text + '</td>' +
+          '<td><button class="icon-btn" data-delete-published="' + productId + '|' + idx + '">🗑️ Delete</button></td>' +
+        '</tr>'
+      );
+    });
+  });
+  document.getElementById("publishedReviewTable").innerHTML = rows.join("") || '<tr><td colspan="5" style="color:var(--muted);">No published reviews.</td></tr>';
+
+  document.querySelectorAll("[data-delete-published]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      if (!confirm("Delete this review?")) return;
+      var parts = b.dataset.deletePublished.split("|");
+      Store.deleteReview(parts[0], Number(parts[1]));
+      renderReviews();
+      renderPublishedReviews();
+    });
+  });
+}
+
+  renderEnquiries();
+renderReviews();
+renderPublishedReviews();
+</script>
+</body>
+</html>

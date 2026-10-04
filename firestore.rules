@@ -1,0 +1,61 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && request.auth.token.admin == true;
+    }
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Shop data: everyone can read, only admin can change
+    match /products/{id}       { allow read: if true; allow write: if isAdmin(); }
+    match /offers/{id}         { allow read: if true; allow write: if isAdmin(); }
+    match /categoryImages/{id} { allow read: if true; allow write: if isAdmin(); }
+    match /settings/{id}       { allow read: if true; allow write: if isAdmin(); }
+
+    // Reviews: anyone can submit (hidden until admin approves), only approved ones are public
+    match /reviews/{id} {
+      allow read: if resource.data.approved == true || isAdmin();
+      allow create: if request.resource.data.approved == false
+                    && request.resource.data.keys().hasOnly(['productId','name','rating','text','photos','approved','date'])
+                    && request.resource.data.productId is string
+                    && request.resource.data.name is string && request.resource.data.name.size() <= 80
+                    && request.resource.data.text is string && request.resource.data.text.size() <= 1500
+                    && request.resource.data.rating is number
+                    && request.resource.data.rating >= 1 && request.resource.data.rating <= 5
+                    && request.resource.data.photos is list && request.resource.data.photos.size() <= 3;
+      allow update, delete: if isAdmin();
+    }
+
+    // Orders: only a logged-in customer can create their own; customer sees own, admin sees all
+    match /orders/{id} {
+      allow create: if request.auth != null
+                    && request.resource.data.uid == request.auth.uid
+                    && request.resource.data.status == 'Placed'
+                    && request.resource.data.total is number
+                    && request.resource.data.total > 0
+                    && request.resource.data.items is list
+                    && request.resource.data.items.size() > 0
+                    && request.resource.data.items.size() <= 50;
+      allow read: if isAdmin() || (request.auth != null && resource.data.uid == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // Contact enquiries: anyone can send, only admin can read or manage
+    match /enquiries/{id} {
+      allow create: if request.resource.data.status == 'New'
+                    && request.resource.data.keys().hasOnly(['id','name','phone','email','subject','message','status','date'])
+                    && request.resource.data.message is string && request.resource.data.message.size() <= 3000;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Customer profiles (not used yet, kept private)
+    match /users/{uid} {
+      allow read, write: if isOwner(uid) || isAdmin();
+    }
+
+    match /{document=**} { allow read, write: if false; }
+  }
+}

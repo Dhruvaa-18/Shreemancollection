@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shriman Collection — Premium Menswear</title>
+  <meta name="description"
+    content="Shriman Collection — shirts, kurtas, jackets, accessories, and made-to-measure tuxedos.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/panther-hero.css">
+</head>
+
+<body>
+
+  <!-- Smart Luxury Sticky Header & Topbar -->
+  <div class="site-header-wrap is-hero" id="siteHeaderWrap">
+    <div class="topbar" id="siteTopbar">FREE SHIPPING on all Prepaid Orders&nbsp;&nbsp;|&nbsp;&nbsp;COD Available</div>
+
+    <header class="header" id="siteHeader">
+      <a href="index.html" class="header__logo">SHRIMAN COLLECTION</a>
+      <nav class="header__nav" aria-label="Primary">
+        <a href="index.html">Home</a>
+        <div class="has-dropdown">
+          <a href="shop.html">Collections ▾</a>
+          <div class="dropdown" id="navDropdown"></div>
+        </div>
+        <a href="shop.html">Shop</a>
+        <a href="offers.html">Offers</a>
+        <a href="about.html">About Us</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="header__icons">
+        <a href="account.html" class="icon-link" id="accountLink" aria-label="Account" style="font-size:0.85rem;">👤
+          Login</a>
+        <a href="wishlist.html" class="icon-link" aria-label="Wishlist">♡<span class="icon-badge"
+            id="wishBadge">0</span></a>
+        <a href="cart.html" class="icon-link" aria-label="Cart">🛒<span class="icon-badge" id="cartBadge">0</span></a>
+      </div>
+    </header>
+  </div>
+
+  <div class="panther-hero" id="pantherSection">
+    <div id="cursor-dot"></div>
+    <div id="cursor-ring"></div>
+
+    <div id="preloader">
+      <div class="preloader-content">
+        <div class="preloader-monogram">S</div>
+        <h1 class="preloader-title">SHRIMAN COLLECTION</h1>
+        <p class="preloader-sub">The Bespoke Panther Experience</p>
+        <div class="preloader-progress-track">
+          <div class="preloader-progress-fill" id="preloader-fill"></div>
+        </div>
+        <div class="preloader-percentage" id="preloader-pct">0%</div>
+        <div class="preloader-status" id="preloader-status">Preparing 300 Atelier Frames...</div>
+      </div>
+    </div>
+
+    <div class="panther-sticky">
+      <div id="canvas-stage" aria-hidden="true">
+        <canvas id="animation-canvas"></canvas>
+        <div class="cinematic-vignette"></div>
+        <div class="ambient-glow"></div>
+      </div>
+
+      <div class="ui-overlay" id="ui-overlay">
+        <section class="narrative-stage" aria-live="polite">
+          <article class="editorial-card card-left active" id="card-0">
+            <div class="card-tag"><span class="tag-line"></span><span>Chapter 01</span></div>
+            <h2 class="card-title">The Clean <span>Canvas</span></h2>
+            <p class="card-desc">A timeless cultural icon enters the private salon. Relaxed poise, effortless charm, and
+              an innate instinct for understated sophistication.</p>
+            <div class="card-stats">
+              <div class="stat-item"><span class="stat-val">300</span><span class="stat-lbl">Handcrafted Frames</span>
+              </div>
+              <div class="stat-item"><span class="stat-val">100%</span><span class="stat-lbl">Scroll-Driven</span></div>
+            </div>
+          </article>
+
+          <article class="editorial-card card-right" id="card-1">
+            <div class="card-tag"><span class="tag-line"></span><span>Chapter 02</span></div>
+            <h2 class="card-title">Artisanal <span>Fitting</span></h2>
+            <p class="card-desc">Surrounded by bolt rolls of pure virgin wool. Master tailors sculpt each stitch to
+              accentuate natural posture with architectural precision.</p>
+            <div class="card-stats">
+              <div class="stat-item"><span class="stat-val">Super 180s</span><span class="stat-lbl">Italian Mill
+                  Fabric</span></div>
+              <div class="stat-item"><span class="stat-val">Bespoke</span><span class="stat-lbl">Floating Canvas</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="editorial-card card-left" id="card-2">
+            <div class="card-tag"><span class="tag-line"></span><span>Chapter 03</span></div>
+            <h2 class="card-title">Midnight <span>Silhouette</span></h2>
+            <p class="card-desc">The finished tuxedo emerges in obsidian noir. A masterclass in proportion, commanding
+              presence with supreme nonchalance.</p>
+            <div class="card-stats">
+              <div class="stat-item"><span class="stat-val">Silk Satin</span><span class="stat-lbl">Hand-Rolled
+                  Lapels</span></div>
+              <div class="stat-item"><span class="stat-val">Obsidian</span><span class="stat-lbl">Midnight
+                  Palette</span></div>
+            </div>
+          </article>
+        </section>
+
+        <footer class="atelier-footer">
+          <div class="timeline-info">
+            <div class="timeline-chapter" id="timeline-chapter-label">CHAPTER 01 — THE CANVAS</div>
+            <div class="timeline-hint">
+              <span>Scroll to traverse timeline</span>
+              <svg class="scroll-arrow-anim" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </div>
+          </div>
+          <div class="scrubber-container" id="scrubber-container" title="Drag to scrub timeline">
+            <div class="scrubber-track">
+              <div class="scrubber-fill" id="scrubber-fill"></div>
+              <div class="scrubber-thumb" id="scrubber-thumb"></div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  </div>
+
+  <main class="store-main" id="storeMain">
+
+    <section class="hero">
+      <div>
+        <div class="hero__eyebrow">NEW COLLECTION</div>
+        <h1>Timeless style,<br>modern you.</h1>
+        <p>Discover premium quality clothing crafted for comfort and elegance — from everyday shirts to a
+          made-to-measure tuxedo line.</p>
+        <div class="hero__cta">
+          <a href="shop.html" class="btn btn--dark">Shop Now</a>
+          <a href="tuxedos/index.html" class="btn btn--outline">Explore the Tuxedo Line →</a>
+        </div>
+      </div>
+      <!-- Catalogue Slideshow -->
+      <div class="hero__catalogue" id="heroCatalogue">
+        <div class="catalogue-track" id="catalogueTrack">
+          <!-- Slides injected by JS -->
+          <div class="catalogue-empty" id="catalogueEmpty">
+            <span>🖼️</span>
+            <p>Catalogue coming soon</p>
+            <small>Admin can add slides from the dashboard</small>
+          </div>
+        </div>
+        <div class="catalogue-dots" id="catalogueDots"></div>
+        <button class="catalogue-nav catalogue-nav--prev" id="cataloguePrev"
+          aria-label="Previous slide">&#8249;</button>
+        <button class="catalogue-nav catalogue-nav--next" id="catalogueNext" aria-label="Next slide">&#8250;</button>
+        <div class="catalogue-badge">📸 Catalogue</div>
+      </div>
+    </section>
+
+    <div class="features">
+      <div class="features__item"><span class="ic">🚚</span>
+        <div><strong>Free Shipping</strong><span>On all prepaid orders</span></div>
+      </div>
+      <div class="features__item"><span class="ic">↩️</span>
+        <div><strong>Easy Returns</strong><span>Hassle-free returns</span></div>
+      </div>
+      <div class="features__item"><span class="ic">✨</span>
+        <div><strong>Premium Quality</strong><span>Best fabrics, always</span></div>
+      </div>
+      <div class="features__item"><span class="ic">🔒</span>
+        <div><strong>Secure Payment</strong><span>100% secure payments</span></div>
+      </div>
+    </div>
+
+    <section class="cat-scroll-wrap" id="catScrollWrap">
+      <div class="cat-scroll-sticky" id="catScrollSticky">
+        <div class="cat-scroll-head">
+          <div class="cat-scroll-eyebrow">Explore</div>
+          <h2>Shop by Category</h2>
+          <p class="cat-scroll-sub">Scroll to explore our collections</p>
+        </div>
+        <div class="cat-scroll-viewport" id="catScrollViewport">
+          <div class="cat-track" id="catTrack"></div>
+        </div>
+        <div class="cat-scroll-footer">
+          <div class="cat-progress">
+            <div class="cat-progress__bar" id="catProgressBar"></div>
+          </div>
+          <span class="cat-progress__count" id="catProgressCount">01 / 01</span>
+          <span class="cat-scroll-indicator"><span>Scroll</span><span class="arrow">→</span></span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section__head">
+        <h2>Best Sellers</h2>
+        <a href="shop.html">View All →</a>
+      </div>
+      <div class="product-grid" id="bestSellers"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="footer__grid">
+      <div>
+        <div class="footer__brand">Shriman Collection</div>
+        <p style="font-size:0.85rem;opacity:0.75;max-width:32ch;">Premium menswear, tailored basics, and made-to-measure
+          occasionwear — all in one wardrobe.</p>
+        <div class="footer__socials">
+          <!-- Facebook
+          <a href="https://facebook.com" class="social-icon social-icon--fb" target="_blank" rel="noopener noreferrer"
+            aria-label="Facebook" title="Follow us on Facebook">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff">
+              <path d="M13.397 20.997v-8.196h2.765l.411-3.209h-3.176V7.548c0-.926.258-1.56 1.587-1.56h1.684V3.127A22.336 22.336 0 0 0 14.201 3c-2.444 0-4.122 1.492-4.122 4.231v2.355H7.332v3.209h2.753v8.202h3.312z"/>
+            </svg>
+          </a> -->
+          <!-- Instagram -->
+          <a href="https://www.instagram.com/shreemancollectionbetma?igsh=MXRzMXJxcWl6dHhzZA==" class="social-icon social-icon--ig" target="_blank" rel="noopener noreferrer"
+            aria-label="Instagram" title="Follow us on Instagram">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>
+            </svg>
+          </a>
+          <!-- WhatsApp -->
+          <a href="https://wa.me/916260605757?text=Hello%20Shriman%20Collection,%20I%20have%20an%20enquiry."
+            class="social-icon social-icon--wa" target="_blank" rel="noopener noreferrer" aria-label="WhatsApp"
+            title="Chat with us on WhatsApp">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#fff">
+              <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.38 1.26 4.79L2.05 22l5.43-1.43c1.36.74 2.9 1.16 4.56 1.16 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.52 14.15c-.23.65-1.35 1.24-1.85 1.31-.49.07-1.11.1-1.79-.11-.41-.13-.94-.3-1.62-.59-2.85-1.23-4.71-4.12-4.85-4.31-.14-.19-1.13-1.5-1.13-2.87 0-1.36.72-2.04 .97-2.31.25-.27.55-.34.73-.34l.52.01c.17 0 .39-.06.61.47.23.54.77 1.88.84 2.01.07.14.11.3.02.48-.09.19-.14.3-.27.46-.14.16-.29.36-.41.48-.14.14-.28.29-.12.56.16.28.72 1.19 1.55 1.92.95.85 1.75 1.11 2.03 1.24.28.13.44.11.61-.07.17-.17.71-.83.9-1.12.19-.28.38-.23.64-.14.26.1 1.65.78 1.93.92.28.14.47.21.54.32.07.12.07.68-.16 1.33z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+      <div>
+        <h4>Shop</h4><a href="shop.html">All Products</a><a href="offers.html">Offers</a><a
+          href="tuxedos/index.html">Tuxedos</a>
+      </div>
+      <div>
+        <h4>Company</h4><a href="about.html">About Us</a><a href="contact.html">Contact</a><a
+          href="admin/login.html">Admin</a>
+      </div>
+      <div>
+        <h4>Account</h4><a href="cart.html">Cart</a><a href="wishlist.html">Wishlist</a><a href="orders.html">My
+          Orders</a>
+      </div>
+      <div class="footer__contact">
+        <h4>Contact</h4>
+        <p class="footer__contact-line">
+          <span class="footer__icon">📍</span>
+          <span>62 SOCIETY ROAD BETMA, Maruti mandir, Near shrimati saree's, Betma</span>
+        </p>
+        <p class="footer__contact-line">
+          <span class="footer__icon">📞</span>
+          <a href="tel:+916260605757">+91 62606-05757</a>
+        </p>
+        <p class="footer__contact-line">
+          <span class="footer__icon">✉️</span>
+          <a href="mailto:shreemancollection29@gmail.com">shreemancollection29@gmail.com</a>
+        </p>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>© 2023 Shriman Collection</span>
+      <span>Made with care in India</span>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp Action Button -->
+  <a href="https://wa.me/916260605757?text=Hello%20Shriman%20Collection,%20I%20would%20like%20to%20know%20more%20about%20your%20collection."
+    class="whatsapp-float" target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"
+    title="Chat with us on WhatsApp">
+    <svg width="34" height="34" viewBox="0 0 24 24" fill="#ffffff">
+      <path
+        d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.276-.1-.477-.15-.678.15-.2.301-.778.98-.954 1.18-.175.2-.351.226-.652.075-.301-.151-1.272-.469-2.423-1.496-.895-.798-1.5-1.784-1.675-2.085-.176-.301-.019-.464.132-.614.135-.135.301-.351.452-.527.15-.175.2-.301.3-.502.101-.2.05-.376-.025-.526-.076-.151-.678-1.633-.929-2.238-.244-.589-.493-.509-.678-.519-.176-.009-.377-.01-.577-.01-.201 0-.527.075-.803.376-.276.301-1.054 1.03-1.054 2.511s1.08 2.912 1.23 3.113c.15.201 2.125 3.245 5.148 4.551.719.311 1.28.497 1.717.636.723.23 1.381.197 1.901.12.58-.087 1.78-.727 2.031-1.428.251-.702.251-1.304.176-1.429-.076-.125-.276-.201-.577-.351zM12.04 2C6.51 2 2.02 6.49 2.02 12.02c0 1.97.57 3.82 1.57 5.39L2 22l4.75-1.54a10.005 10.005 0 0 0 5.29 1.56h.005c5.53 0 10.02-4.49 10.02-10.02 0-2.68-1.04-5.19-2.94-7.08A9.957 9.957 0 0 0 12.04 2z" />
+    </svg>
+  </a>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/site.js"></script>
+  <script src="js/category-scroll.js"></script>
+  <script src="js/catalogue-slider.js"></script>
+  <script type="module" src="js/panther-hero.js"></script>
+  <script>
+    var categories = Store.getCategories();
+    var catTrack = document.getElementById("catTrack");
+    catTrack.innerHTML = categories.map(function (c, i) {
+      var href = c === "Tuxedos" ? "tuxedos/index.html" : "shop.html?category=" + encodeURIComponent(c);
+      var img = Store.getCategoryImage(c);
+      var mediaHTML = img
+        ? '<img src="' + img + '" alt="' + c + '">'
+        : '<span class="cat-card__icon">' + (CATEGORY_ICONS[c] || "🛍️") + '</span>';
+      var tagline = (typeof CATEGORY_TAGLINES !== "undefined" && CATEGORY_TAGLINES[c]) || "Explore the range";
+      var num = String(i + 1).length < 2 ? "0" + (i + 1) : String(i + 1);
+      return (
+        '<a class="cat-card" href="' + href + '" style="--cat-bg:' + cardColor(c) + '">' +
+        '<span class="cat-card__num">' + num + '</span>' +
+        '<div class="cat-card__media">' + mediaHTML + '</div>' +
+        '<div class="cat-card__body"><h3>' + c + '</h3><p>' + tagline + '</p></div>' +
+        '</a>'
+      );
+    }).join("");
+
+    var catCountTotal = String(categories.length).length < 2 ? "0" + categories.length : String(categories.length);
+    document.getElementById("catProgressCount").textContent = "01 / " + catCountTotal;
+    if (window.initCategoryScroll) window.initCategoryScroll();
+
+    var navDropdown = document.getElementById("navDropdown");
+    navDropdown.innerHTML = '<div class="dropdown-inner">' + Store.getCategories().map(function (c) {
+      var href = c === "Tuxedos" ? "tuxedos/index.html" : "shop.html?category=" + encodeURIComponent(c);
+      return '<a href="' + href + '">' + c + '</a>';
+    }).join("") + '</div>';
+
+    var bestSellerIds = ["p01", "p02", "p03", "p05", "p04", "p06"];
+    var grid = document.getElementById("bestSellers");
+    grid.innerHTML = bestSellerIds.map(function (id) { return productCardHTML(Store.getProduct(id)); }).join("");
+    wireProductGrid(grid);
+  </script>
+</body>
+
+</html>

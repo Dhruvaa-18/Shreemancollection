@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hero Catalogue — Admin — Shriman Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+<style>
+  .slide-thumb {
+    width: 68px;
+    height: 50px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--line);
+    background: #1e1b18;
+    display: block;
+  }
+  .preview-box {
+    margin-top: 14px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--line);
+    background: #1a1815;
+    max-width: 440px;
+  }
+  .preview-box img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+  }
+  .preview-box .preview-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
+    color: #fff;
+  }
+  .preview-box .preview-tag {
+    display: inline-block;
+    font-size: 0.62rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: #dfba86;
+    background: rgba(192, 138, 82, 0.25);
+    padding: 2px 8px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+  }
+  .preview-box .preview-title {
+    font-family: var(--serif);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  .quick-links {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    margin-top: 6px;
+  }
+  .quick-chip {
+    background: #f0ebe2;
+    border: 1px solid var(--line);
+    font-size: 0.72rem;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--ink);
+    transition: background 0.15s ease;
+  }
+  .quick-chip:hover {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .interval-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .interval-row input {
+    width: 90px;
+    padding: 8px 12px;
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    font-size: 0.95rem;
+    font-weight: 600;
+  }
+  .reorder-btns {
+    display: flex;
+    gap: 4px;
+  }
+  .btn-move {
+    background: none;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 3px 7px;
+    cursor: pointer;
+    font-size: 0.8rem;
+  }
+  .btn-move:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+  .btn-move:not(:disabled):hover {
+    background: #f0ebe2;
+  }
+  .badge-tag {
+    font-size: 0.7rem;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: #FAF5EE;
+    border: 1px solid #DFBA86;
+    color: #8A5A17;
+    font-weight: 600;
+    display: inline-block;
+  }
+  #heroCatalogue .catalogue-slide__link {
+    pointer-events: none;
+    cursor: default;
+  }
+</style>
+</head>
+<body class="admin">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">Shriman Admin</div>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="products.html">Products</a>
+    <a href="categories.html">Categories</a>
+    <a href="catalogue.html" class="active">Catalogue</a>
+    <a href="orders.html">Orders</a>
+    <a href="enquiries.html">Enquiries</a>
+    <a href="offers.html">Offers</a>
+    <a href="../index.html">View Store ↗</a>
+    <a href="#" class="logout" id="logoutLink">Log Out</a>
+  </aside>
+
+  <main class="admin-main">
+    <h1>Hero Catalogue Slideshow</h1>
+    <p style="color:var(--muted);font-size:0.9rem;margin-top:-16px;margin-bottom:24px;">
+      Manage the photo slideshow on the homepage hero section. Pictures change automatically at your configured interval.
+    </p>
+
+    <div class="stat-grid" id="statGrid"></div>
+
+    <!-- Interval Settings -->
+    <div class="admin-panel">
+      <h2>Slideshow Auto-Change Interval</h2>
+      <p style="font-size:0.84rem;color:var(--muted);margin-bottom:14px;">
+        Set how many seconds each picture stays visible on the homepage before automatically switching to the next slide.
+      </p>
+      <div class="interval-row">
+        <label for="intervalInput" style="font-size:0.86rem;font-weight:500;">Interval (seconds):</label>
+        <input type="number" id="intervalInput" min="2" max="30" value="4">
+        <button type="button" id="saveIntervalBtn" class="btn btn--dark" style="padding:8px 18px;font-size:0.84rem;">Save Speed</button>
+        <span id="intervalNotice" style="font-size:0.82rem;color:var(--accent);font-weight:600;display:none;">Saved!</span>
+      </div>
+    </div>
+
+    <!-- Add / Edit Form -->
+    <div class="admin-panel" id="formPanel">
+      <h2 id="formHeading">Add Catalogue Slide</h2>
+      <form id="slideForm">
+        <input type="hidden" id="editingSlideId" value="">
+        <div class="admin-form-grid">
+          <div>
+            <label for="slideTitle">Slide Title / Caption *</label>
+            <input id="slideTitle" placeholder="e.g. Bespoke Tuxedos &amp; Suits" required>
+          </div>
+          <div>
+            <label for="slideTag">Badge / Tag (Optional)</label>
+            <input id="slideTag" placeholder="e.g. ATELIER BESPOKE, NEW ARRIVALS, FESTIVE EDIT">
+          </div>
+          <div class="full">
+            <label for="slideSubtitle">Subtitle / Short Description (Optional)</label>
+            <input id="slideSubtitle" placeholder="e.g. Crafted to perfection for timeless elegance">
+          </div>
+          <div class="full">
+            <label for="slideLink">Target Link URL (When visitor clicks the slide)</label>
+            <input id="slideLink" placeholder="e.g. shop.html, tuxedos/index.html">
+            <div class="quick-links">
+              <span style="font-size:0.75rem;color:var(--muted);align-self:center;">Quick insert:</span>
+              <button type="button" class="quick-chip" data-link="shop.html">Shop All</button>
+              <button type="button" class="quick-chip" data-link="tuxedos/index.html">Tuxedos</button>
+              <button type="button" class="quick-chip" data-link="shop.html?category=Shirts">Shirts</button>
+              <button type="button" class="quick-chip" data-link="shop.html?category=Kurtas">Kurtas</button>
+              <button type="button" class="quick-chip" data-link="shop.html?category=Jackets">Jackets</button>
+              <button type="button" class="quick-chip" data-link="offers.html">Offers</button>
+            </div>
+          </div>
+          <div>
+            <label for="slideImageUrl">Photo Web Link (URL)</label>
+            <input id="slideImageUrl" placeholder="https://images.unsplash.com/photo-...">
+          </div>
+          <div>
+            <label for="slideImageFile">Or Upload Photo from Device</label>
+            <input type="file" id="slideImageFile" accept="image/*">
+          </div>
+
+          <!-- Preview box -->
+          <div class="full" id="imgPreviewWrap" style="display:none;">
+            <label>Photo Preview &amp; Placement:</label>
+            <div class="preview-box">
+              <img id="imgPreview" src="" alt="Slide Preview">
+              <div class="preview-overlay">
+                <span class="preview-tag" id="previewTag">TAG</span>
+                <h4 class="preview-title" id="previewTitle">Slide Title</h4>
+              </div>
+            </div>
+            <button type="button" id="imgRemoveBtn" class="btn btn--outline" style="margin-top:10px;padding:6px 14px;font-size:0.8rem;">Remove / Change Photo</button>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:10px;margin-top:16px;">
+          <button type="submit" class="btn btn--dark" id="submitBtn">Add Slide</button>
+          <button type="button" class="btn btn--outline" id="cancelEditBtn" style="display:none;">Cancel Edit</button>
+        </div>
+      </form>
+      <p id="slideErr" style="color:var(--sale);font-size:0.82rem;margin-top:10px;"></p>
+    </div>
+
+    <!-- Live Slideshow Mini-Preview -->
+    <div class="admin-panel">
+      <h2>Live Homepage Catalogue Preview</h2>
+      <p style="font-size:0.84rem;color:var(--muted);margin-bottom:16px;">
+        Here is how your catalogue slideshow currently looks and changes on the live homepage:
+      </p>
+      <div style="max-width:540px;">
+        <div class="hero__catalogue" id="heroCatalogue" style="margin:0 auto;box-shadow:0 12px 28px rgba(0,0,0,0.18);">
+          <div class="catalogue-track" id="catalogueTrack">
+            <div class="catalogue-empty" id="catalogueEmpty">
+              <span>🖼️</span>
+              <p>Catalogue coming soon</p>
+              <small>Add slides from the form above</small>
+            </div>
+          </div>
+          <div class="catalogue-dots" id="catalogueDots"></div>
+          <button class="catalogue-nav catalogue-nav--prev" id="cataloguePrev" aria-label="Previous slide">&#8249;</button>
+          <button class="catalogue-nav catalogue-nav--next" id="catalogueNext" aria-label="Next slide">&#8250;</button>
+          <div class="catalogue-badge">📸 Catalogue Preview</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- All Slides Table -->
+    <div class="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+        <h2 style="margin:0;">Active Catalogue Slides (<span id="slideCountHeading">0</span>)</h2>
+        <button type="button" id="resetDefaultsBtn" class="btn btn--outline" style="font-size:0.78rem;padding:6px 12px;">
+          ↻ Reset to Default Curated Slides
+        </button>
+      </div>
+
+      <div style="overflow-x:auto;">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:40px;">#</th>
+              <th style="width:80px;">Photo</th>
+              <th>Title / Caption</th>
+              <th>Tag / Badge</th>
+              <th>Link Target</th>
+              <th style="width:90px;">Order</th>
+              <th style="width:80px;text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="slideTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script src="../js/site.js"></script>
+<script src="../js/catalogue-slider.js"></script>
+<script>
+  if (!Store.isAdminLoggedIn()) location.href = "login.html";
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault(); Store.setAdminLoggedIn(false); location.href = "login.html";
+  });
+
+  // State
+  var currentImgData = "";
+  var editingId = null;
+
+  var slideTitle = document.getElementById("slideTitle");
+  var slideTag = document.getElementById("slideTag");
+  var slideSubtitle = document.getElementById("slideSubtitle");
+  var slideLink = document.getElementById("slideLink");
+  var slideImageUrl = document.getElementById("slideImageUrl");
+  var slideImageFile = document.getElementById("slideImageFile");
+  var imgPreviewWrap = document.getElementById("imgPreviewWrap");
+  var imgPreview = document.getElementById("imgPreview");
+  var previewTag = document.getElementById("previewTag");
+  var previewTitle = document.getElementById("previewTitle");
+  var formHeading = document.getElementById("formHeading");
+  var submitBtn = document.getElementById("submitBtn");
+  var cancelEditBtn = document.getElementById("cancelEditBtn");
+  var slideErr = document.getElementById("slideErr");
+  var intervalInput = document.getElementById("intervalInput");
+  var intervalNotice = document.getElementById("intervalNotice");
+
+  // Load Interval
+  var savedInterval = Store.getCatalogueInterval();
+  intervalInput.value = savedInterval;
+
+  document.getElementById("saveIntervalBtn").addEventListener("click", function () {
+    var val = parseInt(intervalInput.value, 10);
+    if (isNaN(val) || val < 2) {
+      alert("Interval must be at least 2 seconds.");
+      return;
+    }
+    Store.setCatalogueInterval(val);
+    intervalNotice.style.display = "inline";
+    setTimeout(function () { intervalNotice.style.display = "none"; }, 2500);
+    renderStats();
+    if (window.initCatalogueSlider) window.initCatalogueSlider();
+  });
+
+  // Image handling
+  function setSlideImage(src) {
+    currentImgData = src || "";
+    if (currentImgData) {
+      imgPreview.src = currentImgData;
+      imgPreviewWrap.style.display = "block";
+    } else {
+      imgPreview.src = "";
+      imgPreviewWrap.style.display = "none";
+    }
+  }
+
+  function updateLivePreviewOverlay() {
+    previewTag.textContent = slideTag.value.trim() || "PREVIEW";
+    previewTag.style.display = slideTag.value.trim() ? "inline-block" : "none";
+    previewTitle.textContent = slideTitle.value.trim() || "Slide Title";
+  }
+
+  slideTitle.addEventListener("input", updateLivePreviewOverlay);
+  slideTag.addEventListener("input", updateLivePreviewOverlay);
+
+  slideImageUrl.addEventListener("input", function () {
+    slideImageFile.value = "";
+    setSlideImage(slideImageUrl.value.trim());
+  });
+
+  slideImageFile.addEventListener("change", function () {
+    var file = slideImageFile.files[0];
+    if (!file) return;
+    slideImageUrl.value = "";
+    compressImageFile(file, 900, function (compressedDataUrl) {
+      setSlideImage(compressedDataUrl);
+    });
+  });
+
+  document.getElementById("imgRemoveBtn").addEventListener("click", function () {
+    slideImageUrl.value = "";
+    slideImageFile.value = "";
+    setSlideImage("");
+  });
+
+  // Quick link buttons
+  document.querySelectorAll(".quick-chip").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      slideLink.value = btn.getAttribute("data-link");
+    });
+  });
+
+  // Stats
+  function renderStats() {
+    var slides = Store.getCatalogueSlides();
+    var interval = Store.getCatalogueInterval();
+    document.getElementById("slideCountHeading").textContent = slides.length;
+    document.getElementById("statGrid").innerHTML = [
+      ["Total Slides", slides.length],
+      ["Auto-change Interval", interval + " seconds"],
+      ["Rotation Status", slides.length > 1 ? "Active Auto-cycle" : (slides.length === 1 ? "Static (1 Slide)" : "Empty")],
+      ["Placement", "Homepage Hero"]
+    ].map(function (s) {
+      return '<div class="stat-card"><div class="label">' + s[0] + '</div><div class="value" style="font-size:1.35rem;">' + s[1] + '</div></div>';
+    }).join("");
+  }
+
+  // Render Table
+  function renderTable() {
+    var slides = Store.getCatalogueSlides();
+    renderStats();
+
+    var tbody = document.getElementById("slideTable");
+    if (!slides || slides.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted);">No slides yet. Add your first photo slide using the form above!</td></tr>';
+      if (window.initCatalogueSlider) window.initCatalogueSlider();
+      return;
+    }
+
+    tbody.innerHTML = slides.map(function (s, index) {
+      var isFirst = index === 0;
+      var isLast = index === slides.length - 1;
+      var tagHtml = s.tag ? '<span class="badge-tag">' + escapeHtml(s.tag) + '</span>' : '—';
+      var titleHtml = '<strong>' + escapeHtml(s.title || s.caption || 'Untitled') + '</strong>' +
+        (s.subtitle ? '<div style="font-size:0.75rem;color:var(--muted);">' + escapeHtml(s.subtitle) + '</div>' : '');
+      var linkHtml = s.link ? '<a href="../' + s.link + '" target="_blank" style="color:var(--accent);font-size:0.8rem;text-decoration:underline;">' + escapeHtml(s.link) + ' ↗</a>' : '—';
+
+      return (
+        '<tr data-id="' + s.id + '">' +
+          '<td style="color:var(--muted);font-weight:600;">' + (index + 1) + '</td>' +
+          '<td><img src="' + s.src + '" class="slide-thumb" alt="Slide" onerror="this.src=\'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1200&q=80\';"></td>' +
+          '<td>' + titleHtml + '</td>' +
+          '<td>' + tagHtml + '</td>' +
+          '<td>' + linkHtml + '</td>' +
+          '<td>' +
+            '<div class="reorder-btns">' +
+              '<button type="button" class="btn-move" data-move-up="' + s.id + '" title="Move Up"' + (isFirst ? ' disabled' : '') + '>▲</button>' +
+              '<button type="button" class="btn-move" data-move-down="' + s.id + '" title="Move Down"' + (isLast ? ' disabled' : '') + '>▼</button>' +
+            '</div>' +
+          '</td>' +
+          '<td style="text-align:right;">' +
+            '<button class="icon-btn" data-edit="' + s.id + '" title="Edit Slide">✏️</button>' +
+            '<button class="icon-btn" data-del="' + s.id + '" title="Delete Slide">🗑️</button>' +
+          '</td>' +
+        '</tr>'
+      );
+    }).join("");
+
+    // Re-initialize live preview slider on this page
+    if (window.initCatalogueSlider) window.initCatalogueSlider();
+  }
+
+  // Handle Form Submit (Add or Edit)
+  document.getElementById("slideForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    slideErr.textContent = "";
+
+    var title = slideTitle.value.trim();
+    if (!title) {
+      slideErr.textContent = "Please enter a slide title / caption.";
+      return;
+    }
+
+    if (!currentImgData) {
+      slideErr.textContent = "Please provide an image URL or upload a photo.";
+      return;
+    }
+
+    var slidePayload = {
+      title: title,
+      caption: title,
+      tag: slideTag.value.trim() || null,
+      subtitle: slideSubtitle.value.trim() || null,
+      link: slideLink.value.trim() || null,
+      src: currentImgData
+    };
+
+    if (editingId) {
+      Store.updateCatalogueSlide(editingId, slidePayload);
+      resetForm();
+    } else {
+      Store.addCatalogueSlide(slidePayload);
+      resetForm();
+    }
+
+    renderTable();
+  });
+
+  // Table button delegations
+  document.getElementById("slideTable").addEventListener("click", function (e) {
+    var editBtn = e.target.closest("[data-edit]");
+    if (editBtn) {
+      var id = editBtn.getAttribute("data-edit");
+      startEditing(id);
+      return;
+    }
+
+    var delBtn = e.target.closest("[data-del]");
+    if (delBtn) {
+      var id = delBtn.getAttribute("data-del");
+      if (confirm("Are you sure you want to delete this catalogue slide?")) {
+        Store.deleteCatalogueSlide(id);
+        if (editingId === id) resetForm();
+        renderTable();
+      }
+      return;
+    }
+
+    var upBtn = e.target.closest("[data-move-up]");
+    if (upBtn) {
+      var id = upBtn.getAttribute("data-move-up");
+      moveSlide(id, -1);
+      return;
+    }
+
+    var downBtn = e.target.closest("[data-move-down]");
+    if (downBtn) {
+      var id = downBtn.getAttribute("data-move-down");
+      moveSlide(id, 1);
+      return;
+    }
+  });
+
+  function moveSlide(id, direction) {
+    var slides = Store.getCatalogueSlides();
+    var idx = slides.findIndex(function (s) { return s.id === id; });
+    if (idx === -1) return;
+    var targetIdx = idx + direction;
+    if (targetIdx < 0 || targetIdx >= slides.length) return;
+
+    var temp = slides[idx];
+    slides[idx] = slides[targetIdx];
+    slides[targetIdx] = temp;
+
+    var orderedIds = slides.map(function (s) { return s.id; });
+    Store.reorderCatalogueSlides(orderedIds);
+    renderTable();
+  }
+
+  function startEditing(id) {
+    var slides = Store.getCatalogueSlides();
+    var slide = slides.find(function (s) { return s.id === id; });
+    if (!slide) return;
+
+    editingId = id;
+    formHeading.textContent = "Edit Catalogue Slide";
+    submitBtn.textContent = "Save Changes";
+    cancelEditBtn.style.display = "inline-block";
+
+    slideTitle.value = slide.title || slide.caption || "";
+    slideTag.value = slide.tag || "";
+    slideSubtitle.value = slide.subtitle || "";
+    slideLink.value = slide.link || "";
+
+    if (slide.src.indexOf("data:") === 0) {
+      slideImageUrl.value = "";
+    } else {
+      slideImageUrl.value = slide.src;
+    }
+    slideImageFile.value = "";
+    setSlideImage(slide.src);
+    updateLivePreviewOverlay();
+
+    document.getElementById("formPanel").scrollIntoView({ behavior: "smooth" });
+  }
+
+  function resetForm() {
+    editingId = null;
+    formHeading.textContent = "Add Catalogue Slide";
+    submitBtn.textContent = "Add Slide";
+    cancelEditBtn.style.display = "none";
+    slideErr.textContent = "";
+
+    slideTitle.value = "";
+    slideTag.value = "";
+    slideSubtitle.value = "";
+    slideLink.value = "";
+    slideImageUrl.value = "";
+    slideImageFile.value = "";
+    setSlideImage("");
+    updateLivePreviewOverlay();
+  }
+
+  cancelEditBtn.addEventListener("click", resetForm);
+
+  // Reset to Defaults button
+  document.getElementById("resetDefaultsBtn").addEventListener("click", function () {
+    if (confirm("Reset catalogue to default curated slides? Any custom slides will be replaced.")) {
+      Store.resetCatalogueSlides();
+      resetForm();
+      renderTable();
+    }
+  });
+
+  function escapeHtml(str) {
+    if (!str) return "";
+    return String(str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  // Initial render
+  renderTable();
+</script>
+</body>
+</html>

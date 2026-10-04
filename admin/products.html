@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products — Admin — Shriman Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<link rel="stylesheet" href="../css/admin.css">
+</head>
+<body class="admin">
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar__brand">Shriman Admin</div>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="products.html" class="active">Products</a>
+    <a href="categories.html">Categories</a>
+    <a href="catalogue.html">Catalogue</a>
+    <a href="orders.html">Orders</a>
+    <a href="enquiries.html">Enquiries</a>
+        <a href="offers.html">Offers</a>
+    <a href="../index.html">View Store ↗</a>
+    <a href="#" class="logout" id="logoutLink">Log Out</a>
+  </aside>
+
+  <main class="admin-main">
+    <h1>Products</h1>
+
+    <div class="admin-panel">
+      <h2 id="formTitle">Add Product</h2>
+      <form id="productForm">
+        <input type="hidden" id="pId">
+        <div class="admin-form-grid">
+          <div><label>Name</label><input required id="pName"></div>
+          <div><label>Category</label>
+            <select id="pCategory" required></select>
+          </div>
+          <div><label>Price (₹)</label><input type="number" id="pPrice" min="0"></div>
+          <div><label>Original Price (₹, optional)</label><input type="number" id="pOriginalPrice" min="0"></div>
+          <div><label>Stock Quantity</label><input type="number" id="pStock" min="0" value="0"></div>
+          <div><label>Badge</label>
+            <select id="pBadge">
+              <option value="">None</option>
+              <option value="NEW">NEW</option>
+              <option value="SALE">SALE</option>
+            </select>
+          </div>
+          <div class="full"><label>Sizes (comma-separated)</label><input id="pSizes" placeholder="S, M, L, XL"></div>
+          <div class="full"><label>Colours (comma-separated)</label><input id="pColors" placeholder="Black, White"></div>
+          <div class="full"><label>Image Link (URL)</label><input id="pImageUrl" placeholder="https://example.com/photo.jpg"></div>
+          <div class="full"><label>Upload Photo (Cloudinary par jayegi)</label><input type="file" id="pImageFile" accept="image/*"></div>
+<div class="full" id="pImagePreviewWrap" style="display:none;">
+  <label>Preview</label>
+  <img id="pImagePreview" src="" alt="Preview" style="max-width:140px;max-height:140px;border-radius:10px;border:1px solid var(--line);object-fit:cover;">
+  <button type="button" id="pImageRemove" class="btn btn--outline" style="margin-left:12px;padding:6px 14px;">Remove</button>
+</div>
+        </div>
+        <button type="submit" class="btn btn--dark">Save Product</button>
+        <button type="button" class="btn btn--outline" id="resetForm">Clear</button>
+      </form>
+    </div>
+
+    <div class="admin-panel">
+      <h2>Catalog</h2>
+      <table class="admin-table">
+        <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Badge</th><th></th></tr></thead>
+        <tbody id="prodTable"></tbody>
+      </table>
+    </div>
+  </main>
+</div>
+
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script>
+  if (!Store.isAdminLoggedIn()) location.href = "login.html";
+  document.getElementById("logoutLink").addEventListener("click", function (e) {
+    e.preventDefault(); Store.setAdminLoggedIn(false); location.href = "login.html";
+  });
+
+  var catSelect = document.getElementById("pCategory");
+  catSelect.innerHTML = Store.getCategories().map(function (c) { return '<option value="' + c + '">' + c + '</option>'; }).join("");
+  var pImageData = "";
+var imageUrlInput = document.getElementById("pImageUrl");
+var imageFileInput = document.getElementById("pImageFile");
+var previewWrap = document.getElementById("pImagePreviewWrap");
+var previewImg = document.getElementById("pImagePreview");
+
+function setImage(src) {
+  pImageData = src || "";
+  if (pImageData) {
+    previewImg.src = pImageData;
+    previewWrap.style.display = "block";
+  } else {
+    previewImg.src = "";
+    previewWrap.style.display = "none";
+  }
+}
+
+imageUrlInput.addEventListener("input", function () {
+  imageFileInput.value = "";
+  setImage(imageUrlInput.value.trim());
+});
+
+// ---- Cloudinary photo upload ----
+var CLOUDINARY_CLOUD_NAME = "dxq8nbpg";
+var CLOUDINARY_PRESET = "shreeman";
+
+var uploadStatus = document.createElement("small");
+uploadStatus.style.cssText = "display:block;margin-top:6px;color:var(--muted);";
+imageFileInput.parentNode.appendChild(uploadStatus);
+
+function optimizedUrl(url) {
+  return url.replace("/upload/", "/upload/f_auto,q_auto,w_900/");
+}
+
+imageFileInput.addEventListener("change", function () {
+  var file = imageFileInput.files[0];
+  if (!file) return;
+
+  if (!/^image\//.test(file.type)) {
+    uploadStatus.textContent = "Sirf photo (JPG / PNG / WebP) chuno.";
+    imageFileInput.value = "";
+    return;
+  }
+  if (file.size > 8 * 1024 * 1024) {
+    uploadStatus.textContent = "Photo 8 MB se badi hai. Chhoti photo chuno.";
+    imageFileInput.value = "";
+    return;
+  }
+
+  uploadStatus.textContent = "Upload ho rahi hai…";
+  var form = new FormData();
+  form.append("file", file);
+  form.append("upload_preset", CLOUDINARY_PRESET);
+
+  fetch("https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/image/upload", { method: "POST", body: form })
+    .then(function (res) { return res.json().then(function (j) { return { ok: res.ok, body: j }; }); })
+    .then(function (r) {
+      if (!r.ok || !r.body.secure_url) {
+        throw new Error((r.body && r.body.error && r.body.error.message) || "Upload failed");
+      }
+      var url = optimizedUrl(r.body.secure_url);
+      imageUrlInput.value = url;
+      setImage(url);
+      uploadStatus.textContent = "Photo upload ho gayi ✓";
+    })
+    .catch(function (err) {
+      uploadStatus.textContent = "Upload nahi hui: " + err.message;
+    })
+    .then(function () { imageFileInput.value = ""; });
+});
+
+document.getElementById("pImageRemove").addEventListener("click", function () {
+  imageUrlInput.value = "";
+  imageFileInput.value = "";
+  setImage("");
+});
+
+  function renderTable() {
+    var products = Store.getProducts();
+    document.getElementById("prodTable").innerHTML = products.map(function (p) {
+      var stockBadge = p.external ? "" : (p.stock <= 0 ? '<span class="pill-badge out">Out of Stock</span>' : (p.stock <= 5 ? '<span class="pill-badge low">' + p.stock + ' left</span>' : p.stock));
+      return (
+        '<tr>' +
+          '<td>' + p.name + '</td>' +
+          '<td>' + p.category + '</td>' +
+          '<td>' + (p.price === null ? "—" : "₹" + p.price.toLocaleString("en-IN")) + '</td>' +
+          '<td>' + stockBadge + '</td>' +
+          '<td>' + (p.badge || "—") + '</td>' +
+          '<td><button class="icon-btn" data-edit="' + p.id + '">✏️</button><button class="icon-btn" data-del="' + p.id + '">🗑️</button></td>' +
+        '</tr>'
+      );
+    }).join("");
+
+    document.querySelectorAll("[data-edit]").forEach(function (b) {
+      b.addEventListener("click", function () { loadForEdit(b.dataset.edit); });
+    });
+    document.querySelectorAll("[data-del]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (confirm("Delete this product?")) { Store.deleteProduct(b.dataset.del); renderTable(); }
+      });
+    });
+  }
+
+  function loadForEdit(id) {
+    var p = Store.getProduct(id);
+    if (!p) return;
+    document.getElementById("formTitle").textContent = "Edit Product";
+    document.getElementById("pId").value = p.id;
+    document.getElementById("pName").value = p.name;
+    document.getElementById("pCategory").value = p.category;
+    document.getElementById("pPrice").value = p.price || "";
+    document.getElementById("pOriginalPrice").value = p.originalPrice || "";
+    document.getElementById("pStock").value = p.stock;
+    document.getElementById("pBadge").value = p.badge || "";
+    document.getElementById("pSizes").value = p.sizes.join(", ");
+    document.getElementById("pColors").value = p.colors.join(", ");
+    imageFileInput.value = "";
+if (p.image && p.image.indexOf("data:") === 0) {
+  imageUrlInput.value = "";
+} else {
+  imageUrlInput.value = p.image || "";
+}
+setImage(p.image || "");
+  }
+
+  document.getElementById("resetForm").addEventListener("click", function () {
+    document.getElementById("productForm").reset();
+    document.getElementById("pId").value = "";
+    document.getElementById("formTitle").textContent = "Add Product";
+    setImage(""); 
+  });
+
+  document.getElementById("productForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var id = document.getElementById("pId").value || "p" + Date.now();
+    var priceVal = document.getElementById("pPrice").value;
+    var product = {
+      id: id,
+      name: document.getElementById("pName").value,
+      category: document.getElementById("pCategory").value,
+      price: priceVal ? Number(priceVal) : null,
+      originalPrice: document.getElementById("pOriginalPrice").value ? Number(document.getElementById("pOriginalPrice").value) : null,
+      badge: document.getElementById("pBadge").value || null,
+      sizes: document.getElementById("pSizes").value.split(",").map(function (s) { return s.trim(); }).filter(Boolean),
+      colors: document.getElementById("pColors").value.split(",").map(function (s) { return s.trim(); }).filter(Boolean),
+      stock: Number(document.getElementById("pStock").value) || 0,
+      image: pImageData || null, 
+      rating: 4.0,
+      reviewCount: 0
+    };
+    if (!product.sizes.length) product.sizes = ["Free Size"];
+    if (!product.colors.length) product.colors = ["Default"];
+    Store.upsertProduct(product);
+    document.getElementById("productForm").reset();
+    document.getElementById("pId").value = "";
+    document.getElementById("formTitle").textContent = "Add Product";
+    renderTable();
+  });
+  
+  setImage("");
+  renderTable();
+</script>
+</body>
+</html>

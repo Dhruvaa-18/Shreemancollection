@@ -1,0 +1,53 @@
+{
+  "hosting": {
+    "public": ".",
+    "ignore": [
+      "firebase.json",
+      "firestore.rules",
+      "firestore.indexes.json",
+      "**/.*",
+      "**/node_modules/**",
+      "**/serviceAccountKey*.json",
+      "**/*.md",
+      "**/*.zip"
+    ],
+    "rewrites": [
+      { "source": "/shop", "destination": "/shop.html" },
+      { "source": "/offers", "destination": "/offers.html" },
+      { "source": "/about", "destination": "/about.html" },
+      { "source": "/contact", "destination": "/contact.html" },
+      { "source": "/cart", "destination": "/cart.html" },
+      { "source": "/checkout", "destination": "/checkout.html" },
+      { "source": "/wishlist", "destination": "/wishlist.html" },
+      { "source": "/orders", "destination": "/orders.html" },
+      { "source": "/account", "destination": "/account.html" },
+      { "source": "/product", "destination": "/product.html" },
+      { "source": "/admin/login", "destination": "/admin/login.html" },
+      { "source": "/admin/dashboard", "destination": "/admin/dashboard.html" },
+      { "source": "/admin/products", "destination": "/admin/products.html" },
+      { "source": "/admin/categories", "destination": "/admin/categories.html" },
+      { "source": "/admin/orders", "destination": "/admin/orders.html" },
+      { "source": "/admin/enquiries", "destination": "/admin/enquiries.html" },
+      { "source": "/admin/offers", "destination": "/admin/offers.html" }
+    ],
+    "headers": [
+      {
+        "source": "**",
+        "headers": [
+          { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains" },
+          { "key": "X-Content-Type-Options", "value": "nosniff" },
+          { "key": "X-Frame-Options", "value": "DENY" },
+          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+        ]
+      },
+      {
+        "source": "**/*.@(png|jpg|jpeg|webp|svg|css|js)",
+        "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
+      }
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Admin Login — Shriman Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body{ display:flex; align-items:center; justify-content:center; min-height:100vh; background:#F3F0EA; }
+  .login-box{ background:#fff; border-radius:14px; padding:40px; width:340px; max-width:92vw; border:1px solid var(--line); }
+  .login-box h1{ font-size:1.3rem; margin-bottom:6px; }
+  .login-box p{ color:var(--muted); font-size:0.85rem; margin-bottom:22px; }
+  .login-box .field{ margin-bottom:14px; }
+</style>
+</head>
+<body>
+  <div class="login-box">
+    <h1>Shriman Collection</h1>
+    <p>Admin Login</p>
+    <form id="loginForm">
+      <div class="field"><label>Email</label><input type="email" id="email" required autocomplete="username"></div>
+      <div class="field"><label>Password</label><input type="password" id="pass" required autocomplete="current-password"></div>
+      <button type="submit" class="btn btn--dark" id="loginBtn" style="width:100%;">Login</button>
+    </form>
+    <p id="err" style="color:var(--sale);font-size:0.82rem;margin-top:10px;"></p>
+  </div>
+
+<script>window.SC_NO_BOOT = true;</script>
+<script src="../js/data.js"></script>
+<script src="../js/store.js"></script>
+<script>
+  // Already logged in as admin? Go straight to the dashboard.
+  if (Store.isAdminLoggedIn()) location.href = "dashboard.html";
+
+  document.getElementById("loginForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var btn = document.getElementById("loginBtn");
+    var err = document.getElementById("err");
+    err.textContent = "";
+    btn.disabled = true; btn.textContent = "Logging in…";
+    Store.adminLogin(
+      document.getElementById("email").value,
+      document.getElementById("pass").value
+    ).then(function (res) {
+      if (res.ok) {
+        location.href = "dashboard.html";
+      } else {
+        err.textContent = res.error;
+        btn.disabled = false; btn.textContent = "Login";
+      }
+    });
+  });
+</script>
+</body>
+</html>

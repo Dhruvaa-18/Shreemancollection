@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — Shriman Collection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .auth-wrap{ max-width:420px; margin:60px auto; padding:0 24px; }
+  .auth-tabs{ display:flex; gap:10px; margin-bottom:24px; }
+  .auth-tabs button{
+    flex:1; padding:12px; border-radius:8px; border:1px solid var(--line);
+    background:var(--white); font-family:var(--sans); font-size:0.9rem; cursor:pointer;
+  }
+  .auth-tabs button.active{ background:var(--ink); color:var(--white); border-color:var(--ink); }
+  .auth-box{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:32px; }
+  .auth-box .field{ margin-bottom:14px; }
+  .auth-box .field label{ display:block; font-size:0.82rem; color:var(--muted); margin-bottom:6px; }
+  .auth-box .field input{
+    width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--line);
+    font-family:var(--sans); font-size:0.9rem;
+  }
+  .auth-err{ color:var(--sale); font-size:0.82rem; margin:8px 0 0; }
+  .profile-row{ display:flex; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--line); font-size:0.9rem; }
+</style>
+</head>
+<body>
+
+<div class="topbar">FREE SHIPPING on all Prepaid Orders&nbsp;&nbsp;|&nbsp;&nbsp;COD Available</div>
+
+<header class="header">
+  <a href="index.html" class="header__logo">SHRIMAN COLLECTION</a>
+  <nav class="header__nav" aria-label="Primary">
+    <a href="index.html">Home</a>
+    <div class="has-dropdown">
+      <a href="shop.html">Collections ▾</a>
+      <div class="dropdown" id="navDropdown"></div>
+    </div>
+    <a href="shop.html">Shop</a>
+    <a href="offers.html">Offers</a>
+    <a href="about.html">About Us</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <div class="header__icons">
+    <a href="account.html" class="icon-link" id="accountLink" aria-label="Account" style="font-size:0.85rem;">👤 Login</a>
+    <a href="wishlist.html" class="icon-link" aria-label="Wishlist">♡<span class="icon-badge" id="wishBadge">0</span></a>
+    <a href="cart.html" class="icon-link" aria-label="Cart">🛒<span class="icon-badge" id="cartBadge">0</span></a>
+  </div>
+</header>
+
+<main class="auth-wrap" id="authRoot"></main>
+
+<footer class="footer">
+  <div class="footer__grid">
+    <div>
+      <div class="footer__brand">Shriman Collection</div>
+      <p style="font-size:0.85rem;opacity:0.75;max-width:32ch;">Premium menswear, tailored basics, and made-to-measure occasionwear — all in one wardrobe.</p>
+    </div>
+    <div><h4>Shop</h4><a href="shop.html">All Products</a><a href="offers.html">Offers</a><a href="tuxedos/index.html">Tuxedos</a></div>
+    <div><h4>Company</h4><a href="about.html">About Us</a><a href="contact.html">Contact</a><a href="admin/login.html">Admin</a></div>
+    <div><h4>Account</h4><a href="cart.html">Cart</a><a href="wishlist.html">Wishlist</a><a href="orders.html">My Orders</a></div>
+  </div>
+  <div class="footer__bottom">
+    <span>© 2023 Shriman Collection</span>
+    <span>Made with care in India</span>
+  </div>
+</footer>
+
+<script src="js/data.js"></script>
+<script src="js/store.js"></script>
+<script src="js/site.js"></script>
+<script>
+  var navDropdown = document.getElementById("navDropdown");
+  navDropdown.innerHTML = CATEGORY_LIST.map(function (c) {
+    var href = c === "Tuxedos" ? "tuxedos/index.html" : "shop.html?category=" + encodeURIComponent(c);
+    return '<a href="' + href + '">' + c + '</a>';
+  }).join("");
+
+  var root = document.getElementById("authRoot");
+  var mode = "login";
+
+  function render() {
+    var customer = Store.getCurrentCustomer();
+
+    if (customer) {
+      root.innerHTML =
+        '<div class="auth-box">' +
+          '<h2 style="margin-bottom:18px;">My Account</h2>' +
+          '<div class="profile-row"><span>Name</span><strong>' + customer.name + '</strong></div>' +
+          '<div class="profile-row"><span>Email</span><strong>' + customer.email + '</strong></div>' +
+          '<div style="display:flex;gap:12px;margin-top:22px;">' +
+            '<a href="orders.html" class="btn btn--outline" style="flex:1;text-align:center;">My Orders</a>' +
+            '<a href="wishlist.html" class="btn btn--outline" style="flex:1;text-align:center;">Wishlist</a>' +
+          '</div>' +
+          '<button id="logoutBtn" class="btn btn--dark" style="width:100%;margin-top:12px;">Log Out</button>' +
+        '</div>';
+      document.getElementById("logoutBtn").addEventListener("click", function () {
+        Store.logoutCustomer();
+        updateAuthUI();
+        render();
+        showToast("Logged out.");
+      });
+      return;
+    }
+
+    root.innerHTML =
+      '<div class="auth-tabs">' +
+        '<button id="tabLogin" class="' + (mode === "login" ? "active" : "") + '">Login</button>' +
+        '<button id="tabSignup" class="' + (mode === "signup" ? "active" : "") + '">Sign Up</button>' +
+      '</div>' +
+      '<div class="auth-box">' +
+        (mode === "login"
+          ? '<form id="loginForm">' +
+              '<div class="field"><label>Email</label><input type="email" required id="lEmail"></div>' +
+              '<div class="field"><label>Password</label><input type="password" required id="lPass"></div>' +
+              '<button type="submit" class="btn btn--dark" style="width:100%;">Login</button>' +
+              '<p class="auth-err" id="loginErr"></p>' +
+            '</form>'
+          : '<form id="signupForm">' +
+              '<div class="field"><label>Full Name</label><input required id="sName"></div>' +
+              '<div class="field"><label>Email</label><input type="email" required id="sEmail"></div>' +
+              '<div class="field"><label>Password</label><input type="password" required id="sPass" minlength="4"></div>' +
+              '<button type="submit" class="btn btn--dark" style="width:100%;">Create Account</button>' +
+              '<p class="auth-err" id="signupErr"></p>' +
+            '</form>') +
+      '</div>';
+
+    document.getElementById("tabLogin").addEventListener("click", function () { mode = "login"; render(); });
+    document.getElementById("tabSignup").addEventListener("click", function () { mode = "signup"; render(); });
+
+    var loginForm = document.getElementById("loginForm");
+    if (loginForm) {
+         loginForm.addEventListener("submit", function (e) {
+     e.preventDefault();
+     Store.loginCustomer(document.getElementById("lEmail").value, document.getElementById("lPass").value).then(function (res) {
+       if (!res.ok) { document.getElementById("loginErr").textContent = res.error; return; }
+       updateAuthUI(); updateHeaderBadges(); render();
+       showToast("Welcome back!");
+     });
+   });
+  }
+    var signupForm = document.getElementById("signupForm");
+    if (signupForm) {
+         signupForm.addEventListener("submit", function (e) {
+     e.preventDefault();
+     Store.signupCustomer(
+       document.getElementById("sName").value,
+       document.getElementById("sEmail").value,
+       document.getElementById("sPass").value
+     ).then(function (res) {
+       if (!res.ok) { document.getElementById("signupErr").textContent = res.error; return; }
+       updateAuthUI(); updateHeaderBadges(); render();
+       showToast("Account created!");
+     });
+   });
+    }
+  }
+
+  render();
+</script>
+</body>
+</html>
